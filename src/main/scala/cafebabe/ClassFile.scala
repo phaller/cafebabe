@@ -50,6 +50,9 @@ class ClassFile(val className: String, parentName: Option[String] = None) extend
 
   /** Sets the access flags for the class. */
   def setFlags(flags : U2) : Unit = { accessFlags = flags }
+  def setInterfaceFlags():Unit = {
+    accessFlags = Flags.CLASS_ACC_ABSTRACT | Flags.CLASS_ACC_INTERFACE | Flags.CLASS_ACC_PUBLIC
+  }
 
   /** Returns the currently set flags. */
   def getFlags : U2 = accessFlags
@@ -81,6 +84,18 @@ class ClassFile(val className: String, parentName: Option[String] = None) extend
 
 
     new MethodHandler(inf, code, constantPool, concatArgs)
+  }
+
+  def addAbstractMethod(retTpe: String, name: String, args: String*) : Unit =   addAbstractMethod(retTpe,name,args.toList)
+
+  def addAbstractMethod(retTpe: String, name: String, args: List[String]):Unit = {
+    val arguments = args.mkString("")
+    val accessFlags = Flags.METHOD_ACC_PUBLIC | Flags.METHOD_ACC_ABSTRACT
+    val nameIndex = constantPool.addString(name)
+    val descriptorIndex = constantPool.addString("(" + arguments + ")" + retTpe)
+    val methodInfo = MethodInfo(accessFlags,nameIndex,descriptorIndex,List())
+
+    methods = methods ::: (methodInfo::Nil)
   }
 
   /** Adds the main method */
